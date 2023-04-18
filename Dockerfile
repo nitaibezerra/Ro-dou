@@ -14,13 +14,13 @@ RUN apt-get update && \
 RUN git clone https://github.com/economiagovbr/FastETL.git /tmp/repo-FastETL && \
     mkdir -p /opt/airflow/plugins/FastETL/hooks && \
     mkdir -p /opt/airflow/plugins/FastETL/custom_functions/utils && \
-    cp /tmp/repo-FastETL/hooks/dou_hook.py /opt/airflow/plugins/FastETL/hooks/dou_hook.py && \
-    cp -r /tmp/repo-FastETL/custom_functions/utils/date.py /opt/airflow/plugins/FastETL/custom_functions/utils/date.py
+    cp /tmp/repo-FastETL/fastetl/hooks/dou_hook.py /opt/airflow/plugins/FastETL/hooks/ && \
+    cp -r /tmp/repo-FastETL/fastetl/custom_functions/utils/date.py /opt/airflow/plugins/FastETL/custom_functions/utils/
 
 # Remove Git and clean up package cache
 RUN apt-get remove -y git && \
-    apt-get autoremove -y && \
-    rm -rf /tmp/repo-ro-dou && \
+    apt-get autoremove -yqq --purge && \
+    apt-get clean \
     rm -rf /tmp/repo-FastETL
 
 USER airflow
