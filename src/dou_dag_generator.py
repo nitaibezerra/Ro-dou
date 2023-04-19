@@ -35,9 +35,6 @@ from parsers import DAGConfig, YAMLParser
 from searchers import BaseSearcher, DOUSearcher, QDSearcher
 from util import get_source_dir
 
-
-YAMLS_START_DIR = os.path.join(get_source_dir(), 'dag_confs')
-
 class DouDigestDagGenerator():
     """
     YAML based Generator of DAGs that digests the DOU (gazette) daily
@@ -46,6 +43,7 @@ class DouDigestDagGenerator():
     database.
     """
 
+    YAMLS_START_DIR = os.path.join(get_source_dir(), 'dag_confs')
     parser = YAMLParser
     searchers: Dict[str, BaseSearcher]
 
@@ -97,7 +95,7 @@ class DouDigestDagGenerator():
         doc_md = doc_md + "</dl>\n"
         return doc_md
 
-    def find_yml_files(self, directory):
+    def find_yml_files(self):
         """
         Recursively find all .yml and .yaml files inside a directory.
 
@@ -110,7 +108,7 @@ class DouDigestDagGenerator():
         """
 
         yml_files = []
-        for root, dirs, files in os.walk(directory):
+        for root, dirs, files in os.walk(self.YAMLS_START_DIR):
             for file in files:
                 if file.endswith(".yml") or file.endswith(".yaml"):
                     yml_files.append(os.path.join(root, file))
@@ -121,7 +119,7 @@ class DouDigestDagGenerator():
         """Iterates over the YAML files and creates all dags
         """
 
-        files_list = self.find_yml_files(YAMLS_START_DIR)
+        files_list = self.find_yml_files()
 
         for file_path in files_list:
             dag_specs = self.parser(file_path).parse()
