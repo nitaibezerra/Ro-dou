@@ -115,9 +115,6 @@ class DouDigestDagGenerator():
                 if file.endswith(".yml") or file.endswith(".yaml"):
                     yml_files.append(os.path.join(root, file))
 
-        print(yml_files)
-        logging.info(yml_files)
-
         return yml_files
 
     def generate_dags(self):
