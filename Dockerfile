@@ -23,6 +23,8 @@ RUN apt-get remove -y git && \
     apt-get clean && \
     rm -rf /tmp/repo-FastETL
 
+RUN chown -R airflow /opt/airflow
+
 USER airflow
 
 # Install additional Airflow dependencies
