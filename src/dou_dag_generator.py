@@ -36,6 +36,8 @@ from searchers import BaseSearcher, DOUSearcher, QDSearcher
 from util import get_source_dir
 
 
+YAMLS_START_DIR = os.path.join(get_source_dir(), 'dag_confs')
+
 class DouDigestDagGenerator():
     """
     YAML based Generator of DAGs that digests the DOU (gazette) daily
@@ -43,7 +45,6 @@ class DouDigestDagGenerator():
     pré-defined keywords. It's also possible to fetch keywords from the
     database.
     """
-    YAMLS_DIR = os.path.join(get_source_dir(), 'dag_confs')
 
     parser = YAMLParser
     searchers: Dict[str, BaseSearcher]
@@ -96,19 +97,42 @@ class DouDigestDagGenerator():
         doc_md = doc_md + "</dl>\n"
         return doc_md
 
+    def find_yml_files(self, directory):
+        """
+        Recursively find all .yml and .yaml files inside a directory.
+
+        Args:
+            directory (str): The path to the directory to search in.
+
+        Returns:
+            list: A list of paths to .yml and .yaml files found inside
+                the directory.
+        """
+
+        yml_files = []
+        for root, dirs, files in os.walk(directory):
+            for file in files:
+                if file.endswith(".yml") or file.endswith(".yaml"):
+                    yml_files.append(os.path.join(root, file))
+
+        print(yml_files)
+        logging.info(yml_files)
+
+        return yml_files
+
     def generate_dags(self):
         """Iterates over the YAML files and creates all dags
         """
-        files_list = [
-            f for f in os.listdir(self.YAMLS_DIR)
-            if f.split('.')[-1] in ['yaml', 'yml']
-        ]
 
-        for file in files_list:
-            filepath = os.path.join(self.YAMLS_DIR, file)
-            dag_specs = self.parser(filepath).parse()
+        files_list = self.find_yml_files(YAMLS_START_DIR)
+
+        for file_path in files_list:
+            dag_specs = self.parser(file_path).parse()
             dag_id = dag_specs.dag_id
-            globals()[dag_id] = self.create_dag(dag_specs, file)
+            globals()[dag_id] = self.create_dag(
+                dag_specs,
+                os.path.basename(file_path)
+            )
 
     def create_dag(self, specs: DAGConfig, config_file: str) -> DAG:
         """Creates the DAG object and tasks
